@@ -23,17 +23,22 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
                     }
                 }
                 console.log(pokeEvol);
+                console.log('0')
                 return pokeEvol;
             })
             .catch(error => console.log(error))
         console.log(pokeEvol);
+        console.log('1')
         return pokeEvol;
     })
     .then(pokeEvol => {
+        console.log(pokeEvol);
+        console.log('2');
         for (let i = 0; i < pokeEvol.length; i++) {
             axios.get(`https://pokeapi.co/api/v2/pokemon/${pokeEvol[i]}/`)
                 .then(response => {
                     console.log(pokeEvol);
+                    console.log('3');
 
                     let moves = response.data.moves;
                     //check all moves to see if pokeMove can be learned
