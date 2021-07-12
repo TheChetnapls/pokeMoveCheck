@@ -15,13 +15,14 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
                 //add first pokemon in chain
                 pokeEvol.push(response.data.chain.species.name);
                 //add second evolution if it exists
-                if (response.data.chain.evolves_to.length != 0) {
-                    pokeEvol.push(response.data.chain.evolves_to[0].species.name);
-                    //add third evolution if it exists
-                    if (response.data.chain.evolves_to[0].evolves_to.length != 0) {
-                        pokeEvol.push(response.data.chain.evolves_to[0].evolves_to[0].species.name);
-                    }
-                }
+                response.data.chain.evolves_to.forEach(evol => {
+                    pokeEvol.push(evol.species.name);
+                    //add third evolution
+                    evol.evolves_to.forEach(evolv => {
+                        pokeEvol.push(evol.species.name);
+
+                    })
+                })
                 return pokeEvol;
             })
             .then(pokeEvol => {
@@ -30,10 +31,10 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
                 pokeEvol.forEach(pokemon => {
                     //check if you're on the pokemon user searched for, or if you already passed it
                     //and couldn't find the move
-                    if (pokemon == pokeName || !foundMove) {
+                    if (pokemon == pokeName) {
                         foundCurrentPoke = true;
                     }
-                    if (!foundCurrentPoke) return;
+                    if (!foundCurrentPoke || foundMove) return;
                     axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon}/`)
                         .then(response => {
                             let moves = response.data.moves;
@@ -53,7 +54,6 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
                         })
                         .catch(error => console.log(error));
                 })
-
             })
             .catch(error => console.log(error));
     })
