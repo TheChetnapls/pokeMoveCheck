@@ -19,7 +19,7 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
                     pokeEvol.push(evol.species.name);
                     //add third evolution
                     evol.evolves_to.forEach(evolv => {
-                        pokeEvol.push(evol.species.name);
+                        pokeEvol.push(evolv.species.name);
 
                     })
                 })
