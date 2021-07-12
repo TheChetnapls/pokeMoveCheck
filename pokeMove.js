@@ -27,14 +27,14 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
             .then(pokeEvol => {
                 let foundCurrentPoke = false;
                 let foundMove = false;
-                pokeEvol.forEach(pokeEvol => {
+                pokeEvol.forEach(pokemon => {
                     //check if you're on the pokemon user searched for, or if you already passed it
                     //and couldn't find the move
-                    if (pokeEvol == pokeName || !foundMove) {
+                    if (pokemon == pokeName || !foundMove) {
                         foundCurrentPoke = true;
                     }
                     if (!foundCurrentPoke) return;
-                    axios.get(`https://pokeapi.co/api/v2/pokemon/${pokeEvol}/`)
+                    axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon}/`)
                         .then(response => {
                             let moves = response.data.moves;
                             moves.forEach(move => {
@@ -42,17 +42,18 @@ axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`)
                                 if (pokeMove != move.move.name || foundMove) return;
                                 move.version_group_details.forEach(version => {
                                     if (version.level_learned_at == 0 || version.level_learned_at == 1 || foundMove) return;
-                                    console.log(`${pokeEvol} learns ${pokeMove} at level ${version.level_learned_at}`);
+                                    console.log(`${pokemon} learns ${pokeMove} at level ${version.level_learned_at}`);
                                     foundMove = true;
                                 })
                             })
+                            //in case no one learns the move
+                            if (!foundMove) {
+                                console.log(`${pokeName} does not learn ${pokeMove}`);
+                            }
                         })
                         .catch(error => console.log(error));
                 })
-                //in case no one learns the move
-                if (!foundMove) {
-                    console.log(`${pokeName} does not learn ${pokeMove}`);
-                }
+
             })
             .catch(error => console.log(error));
     })
