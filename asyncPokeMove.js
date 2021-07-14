@@ -2,15 +2,12 @@ const axios = require('axios');
 
 let Name = process.argv[2];
 let Move = process.argv[3];
-
-//set array for pokemon in the chain
 let pokeEvol = [];
 
-// Check evolution chain url from species json object
 let moveCheck = async (pokeName, pokeMove) => {
+    // Check evolution chain url from species json object
     let pokeChain = await axios.get(`https://pokeapi.co/api/v2/pokemon-species/${pokeName}/`);
     let evolvResponse = await axios.get(pokeChain.data.evolution_chain.url);
-
     pokeEvol.push(evolvResponse.data.chain.species.name);
     //add second evolution if it exists
     evolvResponse.data.chain.evolves_to.forEach(evol => {
@@ -20,19 +17,18 @@ let moveCheck = async (pokeName, pokeMove) => {
             pokeEvol.push(evolv.species.name);
         })
     })
-
     let foundCurrentPoke = false;
     let foundMove = false;
-
-    pokeEvol.forEach(pokemon => {
+    //nested functions have to be async
+    pokeEvol.forEach(async pokemon => {
         //check if you're on the pokemon user searched for, or if you already passed it
         //and couldn't find the move
         if (pokemon == pokeName) {
             foundCurrentPoke = true;
         }
         if (!foundCurrentPoke || foundMove) return;
-        let pokeResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon}/`)
-        let moves = pokeResponse.data.moves;
+        let pokeResponse = await axios.get(`https://pokeapi.co/api/v2/pokemon/${pokemon}/`);
+        let moves = await pokeResponse.data.moves;
         moves.forEach(move => {
             //returns if pokemon move doesn't match, or if move is already found
             if (pokeMove != move.move.name || foundMove) return;
@@ -42,15 +38,11 @@ let moveCheck = async (pokeName, pokeMove) => {
                 foundMove = true;
             })
         })
-        return foundMove
+        //in case pokemon can't learn the move
+        if (!foundMove) {
+            console.log(`${pokemon} does not learn ${pokeMove}`);
+        }
     })
-    await foundMove => {
-    //in case no one learns the move
-    if (!foundMove) {
-        console.log(`${pokemon} does not learn ${pokeMove}`);
-    }
-}
-
 }
 
 moveCheck(Name, Move);
